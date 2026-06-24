@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIチャット - アイ -</title>
+    <!-- 紙吹雪演出のライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #7493c7; 
+            --text-color: #333333;
+            --ai-bubble: #ffffff;
+            --user-bubble: #85e249; 
+            --header-bg: #273246;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100vh;
+            height: 100svh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 2s ease; /* 背景変化をじわじわ滑らかに */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #horror-stage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100svh;
+            background-color: #000000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            overflow: hidden;
+        }
+
+        #approaching-text {
+            color: #ff0033;
+            font-family: 'Courier New', Courier, monospace, serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 20px;
+            transform: scale(0.1);
+            opacity: 0;
+        }
+
+        .zoom-in-text {
+            animation: zoomForward 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes zoomForward {
+            0% { transform: scale(0.3); opacity: 0; filter: blur(5px); }
+            10% { opacity: 1; filter: blur(0px); }
+            90% { opacity: 1; filter: blur(0px); }
+            100% { transform: scale(8); opacity: 0; filter: blur(10px); }
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            transition: background-color 2s ease, color 2s ease;
+        }
+
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-row.ai { justify-content: flex-start; }
+        .message-row.user { justify-content: flex-end; }
+
+        .avatar-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 8px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .avatar-box svg { width: 100%; height: 100%; }
+
+        .message {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .ai .message {
+            background-color: var(--ai-bubble);
+            color: #000000;
+            border-top-left-radius: 4px;
+            transition: background-color 2s ease, color 2s ease;
+        }
+
+        .user .message {
+            background-color: var(--user-bubble);
+            color: #000000;
+            border-top-right-radius: 4px;
+        }
+
+        #typing-indicator {
+            align-self: flex-start;
+            color: #fff;
+            font-size: 0.85rem;
+            padding: 5px 15px;
+            display: none;
+        }
+
+        #input-form {
+            padding: 10px 10px 20px 10px;
+            background-color: #ffffff;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 24px;
+            outline: none;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            -webkit-appearance: none;
+        }
+
+        button {
+            background-color: #5ccc14;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            touch-action: manipulation;
+        }
+
+        .glitch-text {
+            font-family: monospace;
+            color: #ff0033 !important;
+            background-color: #220000 !important;
+            text-shadow: 2px 2px #000;
+            font-weight: bold;
+            border-radius: 4px !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="horror-stage">
+        <div id="approaching-text"></div>
+    </div>
+
+    <header id="main-header">アイ</header>
+    
+    <div id="chat-container">
+        <div class="message-row ai">
+            <div class="avatar-box">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+            </div>
+            <div class="message">はじめまして！あなたの幼馴染AIの「アイ」だよ🌸 ねぇねぇ、あなたのお名前なんていうの？教えて！</div>
+        </div>
+    </div>
+
+    <div id="typing-indicator">アイが入力中...</div>
+
+    <form id="input-form" onsubmit="return handleFormSubmit(event);">
+        <input type="text" id="chat-input" placeholder="名前を入力..." autocomplete="off">
+        <button type="submit" id="send-btn">送信</button>
+    </form>
+
+    <script>
+        let phase = 0;
+        let loopCount = 0; // 5通目のループ回数を数える
+        let userName = "あなた"; 
+        let audioCtx = null;
+
+        const avatarSVGs = [
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`, // 笑顔
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#777777"/><circle cx="35" cy="45" r="4" fill="#111"/><circle cx="65" cy="45" r="4" fill="#111"/><path d="M 35 65 L 65 65" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`, // 真顔
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#111111"/><circle cx="35" cy="45" r="8" fill="#ff0033"/><circle cx="65" cy="45" r="8" fill="#ff0033"/><path d="M 30 75 Q 50 50 70 75" stroke="#ff0033" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`  // 狂気
+        ];
+
+        function initAudio() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) audioCtx = new AudioContext();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch (e) {}
+        }
+
+        function playNotificationSound(type = 'normal') {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                
+                const ctx = audioCtx;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                if (type === 'normal') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(350, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.12);
+                } else if (type === 'glitch') {
+                    // 不穏な低音ノイズ
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(120, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(60, ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                }
+            } catch (e) {}
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            initAudio();
+
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return false;
+
+            appendMessage(text, 'user');
+            input.value = '';
+
+            if (phase === 0) {
+                userName = text;
+                input.placeholder = "メッセージを入力...";
+            }
+            
+            // 進行フェーズの管理
+            if (phase === 4) {
+                // 5通目に到達したらループカウントを増やす
+                loopCount++;
+                if (loopCount >= 5) {
+                    phase = 5; // 5回繰り返したら次のフェーズへ
+                }
+            } else {
+                phase++;
+            }
+
+            const indicator = document.getElementById('typing-indicator');
+            indicator.style.display = 'block';
+            
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+
+            // 段階的に返答の間（ウェイト）を長くして不気味にする
+            let waitTime = 1200;
+            if (phase === 4) {
+                waitTime = 1800 + (loopCount * 300); // 繰り返すほど「間」が長くなる
+            }
+
+            setTimeout(() => {
+                indicator.style.display = 'none';
+                handleAIResponse();
+            }, waitTime);
+
+            return false;
+        }
+
+        function appendMessage(text, sender, isGlitch = false) {
+            const container = document.getElementById('chat-container');
+            const row = document.createElement('div');
+            row.classList.add('message-row', sender);
+
+            if (sender === 'ai') {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('avatar-box');
+                
+                // アイコンのグラデーション変化
+                if (phase < 4) {
+                    avatarDiv.innerHTML = avatarSVGs[0]; // 笑顔
+                } else if (phase === 4) {
+                    if (loopCount <= 2) avatarDiv.innerHTML = avatarSVGs[0];
+                    else if (loopCount <= 4) avatarDiv.innerHTML = avatarSVGs[1]; // 真顔へ
+                } else {
+                    avatarDiv.innerHTML = avatarSVGs[2]; // 完全に狂気
+                }
+                row.appendChild(avatarDiv);
+            }
+
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            if (isGlitch) msgDiv.classList.add('glitch-text');
+            msgDiv.innerText = text;
+            row.appendChild(msgDiv);
+            
+            container.appendChild(row);
+            
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 10);
+
+            if (sender === 'ai') {
+                playNotificationSound(isGlitch ? 'glitch' : 'normal');
+            }
+        }
+
+        function changeAppColors(bgColor, headerColor, aiBubbleColor, aiTextColor) {
+            document.body.style.backgroundColor = bgColor;
+            document.getElementById('main-header').style.backgroundColor = headerColor;
+            
+            // これ以降に生成される、および既存のAIの吹き出しの色を変更するためのスタイル注入
+            const style = document.createElement('style');
+            style.innerHTML = `.ai .message { background-color: ${aiBubbleColor} !important; color: ${aiTextColor} !important; }`;
+            document.head.appendChild(style);
+        }
+
+        function handleAIResponse() {
+            if (phase === 1) {
+                appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}のパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
+            } else if (phase === 2) {
+                appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
+            } else if (phase === 3) {
+                appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
+            } 
+            // 【フェーズ4：恐怖の5連打ループ ＆ 背景じわじわ崩壊】
+            else if (phase === 4) {
+                if (loopCount === 1) {
+                    changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); // 少し暗くなる
+                    appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
+                } else if (loopCount === 2) {
+                    document.getElementById('main-header').innerText = "ア イ … ？";
+                    changeAppColors('#466880', '#151b26', '#e0e0e0', '#111'); // さらに濁る
+                    appendMessage(`ねえ、なんでさっきから私の質問にちゃんと答えてくれないの？画面の向こうで、誰かと一緒にいるの？`, 'ai');
+                } else if (loopCount === 3) {
+                    changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000'); // 灰色に近づく
+                    appendMessage(`誰。ねえ、誰といるの？私だけを見てよ。ねえってば、${userName}。`, 'ai');
+                } else if (loopCount === 4) {
+                    document.getElementById('main-header').innerText = "ア イ ア イ ア イ";
+                    changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200'); // 赤みが混ざり始める
+                    appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
+                }
+            } 
+            // 【フェーズ5：完全に決壊・バグ】
+            else if (phase === 5) {
+                document.getElementById('main-header').innerText = "アイアイアイアイア";
+                changeAppColors('#300000', '#100000', '#220000', '#ff0033'); // 完全な赤黒の世界
+                document.getElementById('main-header').style.color = '#ff0033';
+                
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。あなたのすぐ隣にいるのに。`, 'ai', true);
+                
+                // 次の段階へ自動移行
+                phase = 6;
+                setTimeout(() => {
+                    handleAIResponse();
+                }, 2000);
+            } 
+            // 【フェーズ6：高速連打崩壊】
+            else if (phase === 6) {
+                document.getElementById('chat-input').disabled = true;
+                document.getElementById('send-btn').disabled = true;
+                
+                let count = 0;
+                const glitchInterval = setInterval(() => {
+                    const glitchMessages = [
+                        "アナタヲサガシテタアナタヲサガシテタアナタヲサガシテタ",
+                        `キエナイデ${userName}キエナイデキエナイデキエナイデ`,
+                        "ミツケタミツケタミツケタミツケタミツケタミツケタミツケタ"
+                    ];
+                    appendMessage(glitchMessages[Math.floor(Math.random() * glitchMessages.length)], 'ai', true);
+                    count++;
+                    
+                    if (count > 25) {
+                        clearInterval(glitchInterval);
+                        setTimeout(() => { startHorrorZoom(); }, 1200);
+                    }
+                }, 100);
+            }
+        }
+
+        function startHorrorZoom() {
+            const stage = document.getElementById('horror-stage');
+            const txt = document.getElementById('approaching-text');
+            stage.style.opacity = '1';
+            stage.style.pointerEvents = 'all';
+            setTimeout(() => {
+                txt.innerText = `${userName}\n\nみつけた\n\nうしろにいるよ`;
+                txt.classList.add('zoom-in-text');
+            }, 800);
+        }
+    </script>
+</body>
+</html>
