@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIチャット - アイ -</title>
+    <!-- 紙吹雪演出のライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -58,25 +59,22 @@
             overflow: hidden;
         }
 
-        /* 縦書きのミツケタ設定 */
+        /* どんな画面でも絶対に真ん中＆縦書きにする設定 */
         #vertical-text {
             color: #ff0033;
             font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif;
             font-weight: bold;
-            font-size: 3.5rem;
-            line-height: 1.5;
-            letter-spacing: 0.5rem;
-            writing-mode: vertical-rl; /* 縦書きにする魔法 */
-            text-orientation: upright;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+            font-size: 3.8rem;
+            line-height: 1.6;
+            text-align: center; /* 中央揃え */
+            display: block;
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.6);
         }
 
         .char-fade {
             opacity: 0;
             transition: opacity 0.5s ease;
+            display: inline-block; /* 1文字ずつ綺麗に制御 */
         }
 
         /* 不気味な目（SVGアニメーション） */
@@ -220,18 +218,22 @@
 <body>
 
     <div id="horror-stage">
+        <!-- 改行（br）を挟むことで、100%確実に縦に並べます -->
         <div id="vertical-text">
-            <span class="char-fade">ミ</span>
-            <span class="char-fade">ツ</span>
-            <span class="char-fade">ケ</span>
+            <span class="char-fade">ミ</span><br>
+            <span class="char-fade">ツ</span><br>
+            <span class="char-fade">ケ</span><br>
             <span class="char-fade">タ</span>
         </div>
+        <!-- 不気味な片目（SVG） -->
         <div id="creepy-eye">
             <svg viewBox="0 0 100 100">
                 <path d="M 10 50 Q 50 20 90 50 Q 50 80 10 50 Z" fill="#222" stroke="#ff0033" stroke-width="3"/>
                 <circle cx="50" cy="50" r="22" fill="#fff"/>
                 <circle cx="50" cy="50" r="14" fill="#000"/>
-                <circle cx="47" cy="47" r="4" fill="#ff0033"/> <circle cx="54" cy="46" r="3" fill="#fff"/> </svg>
+                <circle cx="47" cy="47" r="4" fill="#ff0033"/>
+                <circle cx="54" cy="46" r="3" fill="#fff"/>
+            </svg>
         </div>
         <div id="end-text">- The END -</div>
     </div>
@@ -327,10 +329,11 @@
                 input.placeholder = "メッセージを入力...";
             }
             
-            if (phase === 4) {
+            // メンヘラ化ループのフェーズ番号を6に、最終フェーズを7にシフト
+            if (phase === 6) {
                 loopCount++;
                 if (loopCount >= 5) {
-                    phase = 5; 
+                    phase = 7; 
                 }
             } else {
                 phase++;
@@ -343,7 +346,7 @@
             container.scrollTop = container.scrollHeight;
 
             let waitTime = 1200;
-            if (phase === 4) {
+            if (phase === 6) {
                 waitTime = 1800 + (loopCount * 300); 
             }
 
@@ -364,9 +367,9 @@
                 const avatarDiv = document.createElement('div');
                 avatarDiv.classList.add('avatar-box');
                 
-                if (phase < 4) {
+                if (phase < 6) {
                     avatarDiv.innerHTML = avatarSVGs[0]; 
-                } else if (phase === 4) {
+                } else if (phase === 6) {
                     if (loopCount <= 2) avatarDiv.innerHTML = avatarSVGs[0];
                     else if (loopCount <= 4) avatarDiv.innerHTML = avatarSVGs[1]; 
                 } else {
@@ -402,14 +405,22 @@
         }
 
         function handleAIResponse() {
+            // 普通の会話ターンを2つ追加（合計5ターン）
             if (phase === 1) {
                 appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}のパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
             } else if (phase === 2) {
-                appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
+                appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
+                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+            } else if (phase === 4) {
+                appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
+            } else if (phase === 5) {
+                appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
+            } else if (phase === 6) {
                 appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
             } 
-            else if (phase === 4) {
+            // メンヘラ化・ホラー展開フェーズ
+            else if (phase === 7) {
                 if (loopCount === 1) {
                     changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
@@ -426,20 +437,19 @@
                     appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
                 }
             } 
-            else if (phase === 5) {
+            else if (phase === 8) {
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
                 appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。あなたのすぐ隣にいるのに。`, 'ai', true);
                 
-                phase = 6;
+                phase = 9;
                 setTimeout(() => {
                     handleAIResponse();
                 }, 2000);
             } 
-            else if (phase === 6) {
-                // 入力欄を完全にフリーズ
+            else if (phase === 9) {
                 document.getElementById('chat-input').disabled = true;
                 document.getElementById('send-btn').disabled = true;
                 
@@ -456,7 +466,7 @@
                     if (count > 25) {
                         clearInterval(glitchInterval);
                         
-                        // 【追加】文字が連打されたあと、3秒間完全に画面をフリーズ（静寂）
+                        // 3秒間完全に画面をフリーズ
                         setTimeout(() => { 
                             startHorrorSequence(); 
                         }, 3000); 
@@ -472,13 +482,12 @@
 
             const chars = document.querySelectorAll('.char-fade');
             
-            // 1秒おきに1文字ずつ「ミ・ツ・ケ・タ」を表示
+            // 1秒おきに1文字ずつ、確実に縦に並べて表示
             chars.forEach((char, index) => {
                 setTimeout(() => {
                     char.style.opacity = '1';
                     playNotificationSound('glitch');
                     
-                    // 最後の「タ」が表示されたら次の演出へ
                     if (index === chars.length - 1) {
                         setTimeout(() => {
                             triggerVibrationAndEye();
@@ -489,12 +498,12 @@
         }
 
         function triggerVibrationAndEye() {
-            // 【追加】2秒間のバイブレーション
+            // 2秒間のバイブレーション
             if ('vibrate' in navigator) {
                 navigator.vibrate(2000);
             }
 
-            // バイブレーションの後、文字を消して「不気味な目」を3秒表示
+            // 縦書き文字を消して「不気味な目」を3秒表示
             setTimeout(() => {
                 document.getElementById('vertical-text').style.display = 'none';
                 const eye = document.getElementById('creepy-eye');
