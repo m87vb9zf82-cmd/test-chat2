@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIチャット - アイ -</title>
-    <!-- 紙吹雪演出のライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -30,7 +29,7 @@
             overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 2s ease; /* 背景変化をじわじわ滑らかに */
+            transition: background-color 2s ease;
         }
 
         body {
@@ -39,6 +38,7 @@
             position: relative;
         }
 
+        /* 最終ホラーステージ */
         #horror-stage {
             position: fixed;
             top: 0;
@@ -49,6 +49,7 @@
             background-color: #000000;
             z-index: 9999;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             opacity: 0;
@@ -57,29 +58,45 @@
             overflow: hidden;
         }
 
-        #approaching-text {
+        /* 縦書きのミツケタ設定 */
+        #vertical-text {
             color: #ff0033;
-            font-family: 'Courier New', Courier, monospace, serif;
+            font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif;
             font-weight: bold;
-            font-size: 1.2rem;
-            text-align: center;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            word-break: break-all;
-            padding: 20px;
-            transform: scale(0.1);
+            font-size: 3.5rem;
+            line-height: 1.5;
+            letter-spacing: 0.5rem;
+            writing-mode: vertical-rl; /* 縦書きにする魔法 */
+            text-orientation: upright;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+        }
+
+        .char-fade {
             opacity: 0;
+            transition: opacity 0.5s ease;
         }
 
-        .zoom-in-text {
-            animation: zoomForward 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        /* 不気味な目（SVGアニメーション） */
+        #creepy-eye {
+            width: 180px;
+            height: 180px;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
 
-        @keyframes zoomForward {
-            0% { transform: scale(0.3); opacity: 0; filter: blur(5px); }
-            10% { opacity: 1; filter: blur(0px); }
-            90% { opacity: 1; filter: blur(0px); }
-            100% { transform: scale(8); opacity: 0; filter: blur(10px); }
+        /* The END テキスト */
+        #end-text {
+            color: #777777;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
 
         header {
@@ -203,7 +220,20 @@
 <body>
 
     <div id="horror-stage">
-        <div id="approaching-text"></div>
+        <div id="vertical-text">
+            <span class="char-fade">ミ</span>
+            <span class="char-fade">ツ</span>
+            <span class="char-fade">ケ</span>
+            <span class="char-fade">タ</span>
+        </div>
+        <div id="creepy-eye">
+            <svg viewBox="0 0 100 100">
+                <path d="M 10 50 Q 50 20 90 50 Q 50 80 10 50 Z" fill="#222" stroke="#ff0033" stroke-width="3"/>
+                <circle cx="50" cy="50" r="22" fill="#fff"/>
+                <circle cx="50" cy="50" r="14" fill="#000"/>
+                <circle cx="47" cy="47" r="4" fill="#ff0033"/> <circle cx="54" cy="46" r="3" fill="#fff"/> </svg>
+        </div>
+        <div id="end-text">- The END -</div>
     </div>
 
     <header id="main-header">アイ</header>
@@ -226,14 +256,14 @@
 
     <script>
         let phase = 0;
-        let loopCount = 0; // 5通目のループ回数を数える
+        let loopCount = 0; 
         let userName = "あなた"; 
         let audioCtx = null;
 
         const avatarSVGs = [
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`, // 笑顔
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#777777"/><circle cx="35" cy="45" r="4" fill="#111"/><circle cx="65" cy="45" r="4" fill="#111"/><path d="M 35 65 L 65 65" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`, // 真顔
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#111111"/><circle cx="35" cy="45" r="8" fill="#ff0033"/><circle cx="65" cy="45" r="8" fill="#ff0033"/><path d="M 30 75 Q 50 50 70 75" stroke="#ff0033" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`  // 狂気
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`, 
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#777777"/><circle cx="35" cy="45" r="4" fill="#111"/><circle cx="65" cy="45" r="4" fill="#111"/><path d="M 35 65 L 65 65" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`, 
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#111111"/><circle cx="35" cy="45" r="8" fill="#ff0033"/><circle cx="65" cy="45" r="8" fill="#ff0033"/><path d="M 30 75 Q 50 50 70 75" stroke="#ff0033" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`  
         ];
 
         function initAudio() {
@@ -268,7 +298,6 @@
                     osc.start();
                     osc.stop(ctx.currentTime + 0.12);
                 } else if (type === 'glitch') {
-                    // 不穏な低音ノイズ
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(120, ctx.currentTime);
                     osc.frequency.linearRampToValueAtTime(60, ctx.currentTime + 0.3);
@@ -298,12 +327,10 @@
                 input.placeholder = "メッセージを入力...";
             }
             
-            // 進行フェーズの管理
             if (phase === 4) {
-                // 5通目に到達したらループカウントを増やす
                 loopCount++;
                 if (loopCount >= 5) {
-                    phase = 5; // 5回繰り返したら次のフェーズへ
+                    phase = 5; 
                 }
             } else {
                 phase++;
@@ -315,10 +342,9 @@
             const container = document.getElementById('chat-container');
             container.scrollTop = container.scrollHeight;
 
-            // 段階的に返答の間（ウェイト）を長くして不気味にする
             let waitTime = 1200;
             if (phase === 4) {
-                waitTime = 1800 + (loopCount * 300); // 繰り返すほど「間」が長くなる
+                waitTime = 1800 + (loopCount * 300); 
             }
 
             setTimeout(() => {
@@ -338,14 +364,13 @@
                 const avatarDiv = document.createElement('div');
                 avatarDiv.classList.add('avatar-box');
                 
-                // アイコンのグラデーション変化
                 if (phase < 4) {
-                    avatarDiv.innerHTML = avatarSVGs[0]; // 笑顔
+                    avatarDiv.innerHTML = avatarSVGs[0]; 
                 } else if (phase === 4) {
                     if (loopCount <= 2) avatarDiv.innerHTML = avatarSVGs[0];
-                    else if (loopCount <= 4) avatarDiv.innerHTML = avatarSVGs[1]; // 真顔へ
+                    else if (loopCount <= 4) avatarDiv.innerHTML = avatarSVGs[1]; 
                 } else {
-                    avatarDiv.innerHTML = avatarSVGs[2]; // 完全に狂気
+                    avatarDiv.innerHTML = avatarSVGs[2]; 
                 }
                 row.appendChild(avatarDiv);
             }
@@ -371,7 +396,6 @@
             document.body.style.backgroundColor = bgColor;
             document.getElementById('main-header').style.backgroundColor = headerColor;
             
-            // これ以降に生成される、および既存のAIの吹き出しの色を変更するためのスタイル注入
             const style = document.createElement('style');
             style.innerHTML = `.ai .message { background-color: ${aiBubbleColor} !important; color: ${aiTextColor} !important; }`;
             document.head.appendChild(style);
@@ -385,40 +409,37 @@
             } else if (phase === 3) {
                 appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
             } 
-            // 【フェーズ4：恐怖の5連打ループ ＆ 背景じわじわ崩壊】
             else if (phase === 4) {
                 if (loopCount === 1) {
-                    changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); // 少し暗くなる
+                    changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
                 } else if (loopCount === 2) {
                     document.getElementById('main-header').innerText = "ア イ … ？";
-                    changeAppColors('#466880', '#151b26', '#e0e0e0', '#111'); // さらに濁る
+                    changeAppColors('#466880', '#151b26', '#e0e0e0', '#111'); 
                     appendMessage(`ねえ、なんでさっきから私の質問にちゃんと答えてくれないの？画面の向こうで、誰かと一緒にいるの？`, 'ai');
                 } else if (loopCount === 3) {
-                    changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000'); // 灰色に近づく
+                    changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000'); 
                     appendMessage(`誰。ねえ、誰といるの？私だけを見てよ。ねえってば、${userName}。`, 'ai');
                 } else if (loopCount === 4) {
                     document.getElementById('main-header').innerText = "ア イ ア イ ア イ";
-                    changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200'); // 赤みが混ざり始める
+                    changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200'); 
                     appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
                 }
             } 
-            // 【フェーズ5：完全に決壊・バグ】
             else if (phase === 5) {
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
-                changeAppColors('#300000', '#100000', '#220000', '#ff0033'); // 完全な赤黒の世界
+                changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
                 appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。あなたのすぐ隣にいるのに。`, 'ai', true);
                 
-                // 次の段階へ自動移行
                 phase = 6;
                 setTimeout(() => {
                     handleAIResponse();
                 }, 2000);
             } 
-            // 【フェーズ6：高速連打崩壊】
             else if (phase === 6) {
+                // 入力欄を完全にフリーズ
                 document.getElementById('chat-input').disabled = true;
                 document.getElementById('send-btn').disabled = true;
                 
@@ -434,21 +455,63 @@
                     
                     if (count > 25) {
                         clearInterval(glitchInterval);
-                        setTimeout(() => { startHorrorZoom(); }, 1200);
+                        
+                        // 【追加】文字が連打されたあと、3秒間完全に画面をフリーズ（静寂）
+                        setTimeout(() => { 
+                            startHorrorSequence(); 
+                        }, 3000); 
                     }
                 }, 100);
             }
         }
 
-        function startHorrorZoom() {
+        function startHorrorSequence() {
             const stage = document.getElementById('horror-stage');
-            const txt = document.getElementById('approaching-text');
             stage.style.opacity = '1';
             stage.style.pointerEvents = 'all';
+
+            const chars = document.querySelectorAll('.char-fade');
+            
+            // 1秒おきに1文字ずつ「ミ・ツ・ケ・タ」を表示
+            chars.forEach((char, index) => {
+                setTimeout(() => {
+                    char.style.opacity = '1';
+                    playNotificationSound('glitch');
+                    
+                    // 最後の「タ」が表示されたら次の演出へ
+                    if (index === chars.length - 1) {
+                        setTimeout(() => {
+                            triggerVibrationAndEye();
+                        }, 1000);
+                    }
+                }, index * 1000);
+            });
+        }
+
+        function triggerVibrationAndEye() {
+            // 【追加】2秒間のバイブレーション
+            if ('vibrate' in navigator) {
+                navigator.vibrate(2000);
+            }
+
+            // バイブレーションの後、文字を消して「不気味な目」を3秒表示
             setTimeout(() => {
-                txt.innerText = `${userName}\n\nみつけた\n\nうしろにいるよ`;
-                txt.classList.add('zoom-in-text');
-            }, 800);
+                document.getElementById('vertical-text').style.display = 'none';
+                const eye = document.getElementById('creepy-eye');
+                eye.style.display = 'block';
+                setTimeout(() => { eye.style.opacity = '1'; }, 50);
+
+                // 3秒後に目を消して「The END」を表示
+                setTimeout(() => {
+                    eye.style.opacity = '0';
+                    setTimeout(() => { eye.style.display = 'none'; }, 1000);
+
+                    const endText = document.getElementById('end-text');
+                    endText.style.display = 'block';
+                    setTimeout(() => { endText.style.opacity = '1'; }, 50);
+                }, 3000);
+
+            }, 2000);
         }
     </script>
 </body>
