@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIチャット - アイ -</title>
-    <!-- 紙吹雪演出のライブラリ -->
+    <!-- 演出用ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <!-- 🩸 ホラーフォント（Google Fontsからおどろおどろしい毛筆風フォントを読み込み） -->
+    <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@700&family=New+Tegomin&display=swap" rel="stylesheet">
+
     <style>
+        /* =========================================================
+           🎨 【デザイン・色味の調整】
+           ========================================================= */
         :root {
-            --bg-color: #7493c7; 
-            --text-color: #333333;
-            --ai-bubble: #ffffff;
-            --user-bubble: #85e249; 
-            --header-bg: #273246;
+            --bg-color: #7493c7;       
+            --text-color: #333333;     
+            --ai-bubble: #ffffff;      
+            --user-bubble: #85e249;    
+            --header-bg: #273246;      
         }
 
         * {
@@ -39,7 +46,7 @@
             position: relative;
         }
 
-        /* 最終ホラーステージ */
+        /* 👁️ 最終ホラーステージ（真っ黒な画面） */
         #horror-stage {
             position: fixed;
             top: 0;
@@ -59,36 +66,47 @@
             overflow: hidden;
         }
 
-        /* どんな画面でも絶対に真ん中＆縦書きにする設定 */
+        /* 🩸 【超重要】「ミツケタ」の文字の見た目をさらに怖く変更 */
         #vertical-text {
-            color: #ff0033;
-            font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif;
-            font-weight: bold;
-            font-size: 3.8rem;
-            line-height: 1.6;
-            text-align: center; /* 中央揃え */
+            color: #d10000; /* 少し黒みのある呪われた赤 */
+            /* かすれた手書き風のホラーフォントを適用 */
+            font-family: 'New Tegomin', 'Kaisei Tokumin', 'Hiragino Mincho ProN', serif; 
+            font-weight: 900;
+            font-size: 4.5rem; /* 恐怖度を増すために少しサイズアップ */
+            line-height: 1.4;  
+            text-align: center;
             display: block;
-            text-shadow: 0 0 10px rgba(255, 0, 51, 0.6);
+            /* 血がにじんだようなドロッとした赤黒い影のエフェクトを強化 */
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 2px 2px 4px #000000;
+            letter-spacing: 5px;
+            /* わずかに文字を歪ませることで、精神的に不安定なイメージを演出 */
+            transform: scaleX(0.95);
         }
 
         .char-fade {
             opacity: 0;
-            transition: opacity 0.5s ease;
-            display: inline-block; /* 1文字ずつ綺麗に制御 */
+            transition: opacity 0.4s ease; /* 浮かび上がる速度をほんの少し急に */
+            display: inline-block;
         }
 
-        /* 不気味な目（SVGアニメーション） */
+        /* 👁️ アップロードしたホラー目の画像を表示する枠 */
         #creepy-eye {
-            width: 180px;
-            height: 180px;
+            width: 280px;  
+            height: 280px;
             display: none;
             opacity: 0;
             transition: opacity 1s ease;
         }
 
-        /* The END テキスト */
+        #creepy-eye img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 🏁 「The END」の文字の見た目設定 */
         #end-text {
-            color: #777777;
+            color: #555555;
             font-family: 'Courier New', Courier, monospace;
             font-size: 1.5rem;
             margin-top: 20px;
@@ -97,6 +115,7 @@
             transition: opacity 1s ease;
         }
 
+        /* 💬 チャット画面共通のスタイル */
         header {
             background-color: var(--header-bg);
             color: white;
@@ -141,7 +160,17 @@
             flex-shrink: 0;
             overflow: hidden;
         }
-        .avatar-box svg { width: 100%; height: 100%; }
+        
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 2s ease; 
+        }
+
+        .avatar-img.normal { filter: none; } 
+        .avatar-img.serious { filter: grayscale(100%) contrast(120%); } 
+        .avatar-img.horror { filter: brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(300%); } 
 
         .message {
             max-width: 70%;
@@ -218,22 +247,15 @@
 <body>
 
     <div id="horror-stage">
-        <!-- 改行（br）を挟むことで、100%確実に縦に並べます -->
         <div id="vertical-text">
             <span class="char-fade">ミ</span><br>
             <span class="char-fade">ツ</span><br>
             <span class="char-fade">ケ</span><br>
             <span class="char-fade">タ</span>
         </div>
-        <!-- 不気味な片目（SVG） -->
+        
         <div id="creepy-eye">
-            <svg viewBox="0 0 100 100">
-                <path d="M 10 50 Q 50 20 90 50 Q 50 80 10 50 Z" fill="#222" stroke="#ff0033" stroke-width="3"/>
-                <circle cx="50" cy="50" r="22" fill="#fff"/>
-                <circle cx="50" cy="50" r="14" fill="#000"/>
-                <circle cx="47" cy="47" r="4" fill="#ff0033"/>
-                <circle cx="54" cy="46" r="3" fill="#fff"/>
-            </svg>
+            <img src="eye.png" alt="恐怖の目">
         </div>
         <div id="end-text">- The END -</div>
     </div>
@@ -243,7 +265,7 @@
     <div id="chat-container">
         <div class="message-row ai">
             <div class="avatar-box">
-                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+                <img src="ai.png" class="avatar-img normal" alt="アイ">
             </div>
             <div class="message">はじめまして！あなたの幼馴染AIの「アイ」だよ🌸 ねぇねぇ、あなたのお名前なんていうの？教えて！</div>
         </div>
@@ -262,12 +284,6 @@
         let userName = "あなた"; 
         let audioCtx = null;
 
-        const avatarSVGs = [
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#ffb6c1"/><circle cx="35" cy="45" r="7" fill="#333"/><circle cx="65" cy="45" r="7" fill="#333"/><path d="M 35 65 Q 50 80 65 65" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`, 
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#777777"/><circle cx="35" cy="45" r="4" fill="#111"/><circle cx="65" cy="45" r="4" fill="#111"/><path d="M 35 65 L 65 65" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`, 
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#111111"/><circle cx="35" cy="45" r="8" fill="#ff0033"/><circle cx="65" cy="45" r="8" fill="#ff0033"/><path d="M 30 75 Q 50 50 70 75" stroke="#ff0033" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`  
-        ];
-
         function initAudio() {
             try {
                 if (!audioCtx) {
@@ -284,7 +300,6 @@
             try {
                 initAudio();
                 if (!audioCtx) return;
-                
                 const ctx = audioCtx;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -326,10 +341,9 @@
 
             if (phase === 0) {
                 userName = text;
-                input.placeholder = "メッセージを入力...";
+                input.placeholder = "メッセージを入力..."
             }
             
-            // メンヘラ化ループのフェーズ番号を6に、最終フェーズを7にシフト
             if (phase === 6) {
                 loopCount++;
                 if (loopCount >= 5) {
@@ -347,7 +361,7 @@
 
             let waitTime = 1200;
             if (phase === 6) {
-                waitTime = 1800 + (loopCount * 300); 
+                waitTime = 1800 + (loopCount * 300);
             }
 
             setTimeout(() => {
@@ -367,14 +381,20 @@
                 const avatarDiv = document.createElement('div');
                 avatarDiv.classList.add('avatar-box');
                 
+                const img = document.createElement('img');
+                img.src = "ai.png";
+                img.classList.add('avatar-img');
+                
                 if (phase < 6) {
-                    avatarDiv.innerHTML = avatarSVGs[0]; 
+                    img.classList.add('normal'); 
                 } else if (phase === 6) {
-                    if (loopCount <= 2) avatarDiv.innerHTML = avatarSVGs[0];
-                    else if (loopCount <= 4) avatarDiv.innerHTML = avatarSVGs[1]; 
+                    if (loopCount <= 2) img.classList.add('normal');
+                    else if (loopCount <= 4) img.classList.add('serious'); 
                 } else {
-                    avatarDiv.innerHTML = avatarSVGs[2]; 
+                    img.classList.add('horror'); 
                 }
+                
+                avatarDiv.appendChild(img);
                 row.appendChild(avatarDiv);
             }
 
@@ -405,13 +425,12 @@
         }
 
         function handleAIResponse() {
-            // 普通の会話ターンを2つ追加（合計5ターン）
             if (phase === 1) {
                 appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}のパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
             } else if (phase === 2) {
                 appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
                 appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
@@ -419,7 +438,6 @@
             } else if (phase === 6) {
                 appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
             } 
-            // メンヘラ化・ホラー展開フェーズ
             else if (phase === 7) {
                 if (loopCount === 1) {
                     changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
@@ -465,8 +483,6 @@
                     
                     if (count > 25) {
                         clearInterval(glitchInterval);
-                        
-                        // 3秒間完全に画面をフリーズ
                         setTimeout(() => { 
                             startHorrorSequence(); 
                         }, 3000); 
@@ -482,7 +498,6 @@
 
             const chars = document.querySelectorAll('.char-fade');
             
-            // 1秒おきに1文字ずつ、確実に縦に並べて表示
             chars.forEach((char, index) => {
                 setTimeout(() => {
                     char.style.opacity = '1';
@@ -498,19 +513,16 @@
         }
 
         function triggerVibrationAndEye() {
-            // 2秒間のバイブレーション
             if ('vibrate' in navigator) {
                 navigator.vibrate(2000);
             }
 
-            // 縦書き文字を消して「不気味な目」を3秒表示
             setTimeout(() => {
                 document.getElementById('vertical-text').style.display = 'none';
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 setTimeout(() => { eye.style.opacity = '1'; }, 50);
 
-                // 3秒後に目を消して「The END」を表示
                 setTimeout(() => {
                     eye.style.opacity = '0';
                     setTimeout(() => { eye.style.display = 'none'; }, 1000);
@@ -518,7 +530,7 @@
                     const endText = document.getElementById('end-text');
                     endText.style.display = 'block';
                     setTimeout(() => { endText.style.opacity = '1'; }, 50);
-                }, 3000);
+                }, 4000); 
 
             }, 2000);
         }
