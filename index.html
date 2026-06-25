@@ -535,7 +535,7 @@
             });
         }
 
-        function triggerVibrationAndEye() {
+       function triggerVibrationAndEye() {
             if ('vibrate' in navigator) {
                 navigator.vibrate(2000);
             }
@@ -544,6 +544,15 @@
                 document.getElementById('vertical-text').style.display = 'none';
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
+                
+                // 👁️ 【新規：ホラー効果音の再生】
+                // 目の画像が出る瞬間に、アップロードしたmp3を爆音で鳴らします
+                const horrorAudio = new Audio('horror_sound.mp3');
+                horrorAudio.volume = 1.0; // 音量を最大（0.0 〜 1.0）に設定
+                horrorAudio.play().catch(e => {
+                    console.log("オーディオの再生に失敗しました（ブラウザの制限など）:", e);
+                });
+
                 setTimeout(() => { eye.style.opacity = '1'; }, 50);
 
                 setTimeout(() => {
