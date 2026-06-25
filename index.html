@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIチャット - アイ -</title>
-    <!-- 演出用ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
-    <!-- 🩸 ホラーフォント -->
-    <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@700&family=New+Tegomin&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap" rel="stylesheet">
 
     <style>
         /* =========================================================
@@ -66,18 +64,22 @@
             overflow: hidden;
         }
 
-        /* 🩸 「ミツケタ」の文字の見た目 */
+        /* 🩸 【強制ホラー加工】フォントに関わらず文字の形を精神的に病んだ形状に歪ませる */
         #vertical-text {
-            color: #d10000; 
-            font-family: 'New Tegomin', 'Kaisei Tokumin', 'Hiragino Mincho ProN', serif; 
+            color: #c00000; 
+            font-family: 'New Tegomin', 'Hiragino Mincho ProN', 'MS Mincho', serif; 
             font-weight: 900;
-            font-size: 4.5rem; 
-            line-height: 1.4;  
+            font-size: 5rem; /* 迫力を出すため少し大きく */
+            line-height: 1.3;  
             text-align: center;
             display: block;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 2px 2px 4px #000000;
-            letter-spacing: 5px;
-            transform: scaleX(0.95);
+            /* 強い血の滲みエフェクト */
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.9), 0 0 20px rgba(150, 0, 0, 0.8), 3px 3px 2px #000000;
+            letter-spacing: 4px;
+            
+            /* 🔥 縦に細長く引き伸ばし、さらに左右をすぼめることで「お札」や「呪いの文字」のような不安定さを強制演出 */
+            transform: scale(0.75, 1.4) skewX(-6deg);
+            filter: contrast(150%) blur(0.3px); /* 輪郭を少し不気味にジャギらせる */
         }
 
         .char-fade {
@@ -341,22 +343,19 @@
                 input.placeholder = "メッセージを入力..."
             }
             
-            // ⚙️ 【進行管理の大幅修正】
-            // 送信時のフェーズ移動と、AIが「今どのセリフを言うべきか」のタイミングを完全に同期させました。
-            if (phase < 6) {
-                phase++;
-            } else if (phase === 6) {
+            if (phase === 6) {
                 loopCount++;
-                // ループ台詞が「5回画面に出たあと」に、次のユーザー送信でフェーズ7へ移行
-                if (loopCount >= 5) {
+                if (loopCount >= 4) {
                     phase = 7;
-                    loopCount = 0; // フェーズ7用のカウントにリセット
+                    loopCount = 0; 
                 }
             } else if (phase === 7) {
                 loopCount++;
                 if (loopCount >= 4) {
                     phase = 8; 
                 }
+            } else {
+                if (phase < 6) phase++;
             }
 
             const indicator = document.getElementById('typing-indicator');
@@ -365,7 +364,6 @@
             const container = document.getElementById('chat-container');
             container.scrollTop = container.scrollHeight;
 
-            // 返信待ち時間（徐々に不気味に遅くなる演出）
             let waitTime = 1200;
             if (phase === 6) {
                 waitTime = 1400 + (loopCount * 200);
@@ -392,14 +390,13 @@
                 img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
-                // アイコンのグラフィック変化をフェーズと正確に連動
                 if (phase < 7) {
                     img.classList.add('normal'); 
                 } else if (phase === 7) {
                     if (loopCount <= 1) img.classList.add('normal');
-                    else img.classList.add('serious'); // 2回目以降で真顔（白黒）
+                    else img.classList.add('serious'); 
                 } else {
-                    img.classList.add('horror'); // 最終段階で赤黒
+                    img.classList.add('horror'); 
                 }
                 
                 avatarDiv.appendChild(img);
@@ -438,17 +435,23 @@
             } else if (phase === 2) {
                 appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
                 appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
                 appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
-            } else if (phase === 6) {
-                // 執着ループ：ここで確実に5回同じセリフを発言させます
-                appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
+            }else if (phase === 6) {
+                // 最初の1回目（loopCountが0のとき）だけ、普通の相槌を打つ
+                if (loopCount === 0) {
+                    appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。`, 'ai');
+                } 
+                // 2回目以降（loopCountが1, 2, 3のとき）は、執着セリフを3回繰り返す
+                else {
+                    appendMessage(`ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
+                }
+        
             } 
             else if (phase === 7) {
-                // 病みトーク段階：背景色が徐々に暗く沈んでいく演出
                 if (loopCount === 0) {
                     changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
@@ -466,12 +469,11 @@
                 }
             } 
             else if (phase === 8) {
-                // 最終警告（赤黒画面・グリッチ文字の始まり）
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。あなたのすぐ隣にいるのに。`, 'ai', true);
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。`, 'ai');
                 
                 phase = 9;
                 setTimeout(() => {
@@ -479,7 +481,6 @@
                 }, 2000);
             } 
             else if (phase === 9) {
-                // 自動スクロール＆画面埋め尽くしバグ演出
                 document.getElementById('chat-input').disabled = true;
                 document.getElementById('send-btn').disabled = true;
                 
@@ -490,7 +491,7 @@
                         `キエナイデ${userName}キエナイデキエナイデキエナイデ`,
                         "ミツケタミツケタミツケタミツケタミツケタミツケタミツケタ"
                     ];
-                    appendMessage(glitchMessages[Math.floor(Math.random() * glitchMessages.length)], 'ai', true);
+                    appendMessage(glitchMessages[Math.floor(Math.random() * glitchMessages.length)], 'ai');
                     count++;
                     
                     if (count > 25) {
