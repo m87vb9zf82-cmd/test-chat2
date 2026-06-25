@@ -365,7 +365,7 @@
             
             if (phase === 6) {
                 loopCount++;
-                if (loopCount >= 5) { 
+                if (loopCount >= 4) { 
                     phase = 7;
                     loopCount = 0; 
                 }
@@ -453,7 +453,7 @@
             if (isScaryBG) {
                 // 白ではなく、指定された背景色（bgColor）の末尾に「E6」（不透明度90%の意味）を付け足した膜を重ねます。
                 // これにより、元の綺麗なブルーのまま、奥からうっすら顔が浮かび上がります！
-                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}E6, ${bgColor}E6), url('ai_scary.png')`;
+                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}FA, ${bgColor}FA), url('ai_scary.png')`;
                 
                 // 💡 もし「もっと顔をハッキリ見せたい！」という場合は、E6 を D9（85%）や C4（77%）に下げてみてください。
             } else {
