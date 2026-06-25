@@ -390,21 +390,21 @@
                 img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
-             // ✨ アイコン画像の切り替え処理（約束3回目で不気味ちゃん化）
+            // ✨ アイコン画像の切り替え処理（色変化エフェクトを完全オフ版）
                 if (phase === 6 && loopCount === 3) {
-                    // 「約束だよ？」の3回目で画像が変わり、一気にホラー化
+                    // 「約束だよ？」の3回目で不気味ちゃん画像に切り替え（色はそのまま）
                     img.src = "ai_scary.png";
-                    img.classList.add('serious'); 
+                    img.classList.add('normal'); 
                 } else if (phase === 6 && loopCount > 3) {
-                    // 次の送信を待つ間のアイコン（4回目カウント時など）
+                    // 次の送信を待つ間
                     img.src = "ai_scary.png";
-                    img.classList.add('serious');
+                    img.classList.add('normal');
                 } else if (phase >= 7) {
-                    // フェーズ7以降の最終段階（赤黒化エフェクト）
+                    // フェーズ7以降も、エフェクトをかけずに不気味ちゃん画像をそのまま表示！
                     img.src = "ai_scary.png";
-                    img.classList.add('horror');
+                    img.classList.add('normal');
                 } else {
-                    // 通常時（普通の相槌や、約束の1〜2回目まで）
+                    // 通常時（最初の可愛いアイちゃん）
                     img.src = "ai.png";
                     img.classList.add('normal');
                 }
