@@ -253,7 +253,45 @@
     </style>
 </head>
 <body>
+<!-- 📱 PCアクセス制限用のブロック画面 -->
+    <div id="pc-blocker" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #111111;
+        color: #ffffff;
+        z-index: 999999;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        box-sizing: border-box;
+    ">
+        <div style="font-size: 48px; margin-bottom: 20px;">📱</div>
+        <h2 style="font-size: 20px; margin-bottom: 15px; font-weight: bold;">スマートフォン専用ゲームです</h2>
+        <p style="font-size: 14px; color: #ccc; line-height: 1.6; margin: 0;">
+            このホラーゲームは演出の都合上、<br>
+            スマートフォンでのプレイにのみ対応しています。<br>
+            恐れ入りますが、スマホからアクセスし直してお楽しみください。
+        </p>
+    </div>
 
+    <script>
+        // 🕵️‍♂️ プレイヤーの端末がPCかスマホかを判定する処理
+        window.addEventListener('DOMContentLoaded', () => {
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            // iPhone, iPad, Android などのキーワードが含まれて「いない」＝ PC と判断
+            const isDataSmart = /iphone|ipad|ipod|android/.test(userAgent);
+            
+            if (!isDataSmart) {
+                // PCだった場合は、真っ黒なブロック画面を強制表示してゲームを隠す
+                document.getElementById('pc-blocker').style.display = 'flex';
+            }
+        });
+    </script>
+    
     <div id="horror-stage">
         <div id="vertical-text">
             <span class="char-fade">ミ</span><br>
