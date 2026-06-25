@@ -514,7 +514,7 @@
             }
         }
 
-        function startHorrorSequence() {
+       function startHorrorSequence() {
             const stage = document.getElementById('horror-stage');
             stage.style.opacity = '1';
             stage.style.pointerEvents = 'all';
@@ -524,7 +524,7 @@
             chars.forEach((char, index) => {
                 setTimeout(() => {
                     char.style.opacity = '1';
-                    playNotificationSound('glitch');
+                    // ✨ 音を鳴らす処理を消去して完全無音に！
                     
                     if (index === chars.length - 1) {
                         setTimeout(() => {
@@ -534,7 +534,6 @@
                 }, index * 1000);
             });
         }
-
        function triggerVibrationAndEye() {
             if ('vibrate' in navigator) {
                 navigator.vibrate(2000);
