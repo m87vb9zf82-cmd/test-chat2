@@ -312,7 +312,7 @@
                 horrorAudio.play().then(() => {
                     horrorAudio.pause();
                     horrorAudio.currentTime = 0;
-                    horrorAudio.muted = false; // 空再生が終わったらミュートを解除しておく
+                   
                 }).catch(() => {});
             } catch (e) {}
         }
@@ -564,6 +564,8 @@
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 
+                // 👁️ ここでホラー効果音が鳴り響きます
+                horrorAudio.muted = false; // 👈 ✨ここで初めてミュートを解除！
                 horrorAudio.volume = 1.0; 
                 horrorAudio.play().catch(e => {
                     console.log("再生エラー:", e);
