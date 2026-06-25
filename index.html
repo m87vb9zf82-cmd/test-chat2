@@ -7,7 +7,7 @@
     <!-- 演出用ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
-    <!-- 🩸 ホラーフォント（Google Fontsからおどろおどろしい毛筆風フォントを読み込み） -->
+    <!-- 🩸 ホラーフォント -->
     <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@700&family=New+Tegomin&display=swap" rel="stylesheet">
 
     <style>
@@ -66,30 +66,27 @@
             overflow: hidden;
         }
 
-        /* 🩸 【超重要】「ミツケタ」の文字の見た目をさらに怖く変更 */
+        /* 🩸 「ミツケタ」の文字の見た目 */
         #vertical-text {
-            color: #d10000; /* 少し黒みのある呪われた赤 */
-            /* かすれた手書き風のホラーフォントを適用 */
+            color: #d10000; 
             font-family: 'New Tegomin', 'Kaisei Tokumin', 'Hiragino Mincho ProN', serif; 
             font-weight: 900;
-            font-size: 4.5rem; /* 恐怖度を増すために少しサイズアップ */
+            font-size: 4.5rem; 
             line-height: 1.4;  
             text-align: center;
             display: block;
-            /* 血がにじんだようなドロッとした赤黒い影のエフェクトを強化 */
             text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 2px 2px 4px #000000;
             letter-spacing: 5px;
-            /* わずかに文字を歪ませることで、精神的に不安定なイメージを演出 */
             transform: scaleX(0.95);
         }
 
         .char-fade {
             opacity: 0;
-            transition: opacity 0.4s ease; /* 浮かび上がる速度をほんの少し急に */
+            transition: opacity 0.4s ease; 
             display: inline-block;
         }
 
-        /* 👁️ アップロードしたホラー目の画像を表示する枠 */
+        /* 👁️ ホラー目の画像を表示する枠 */
         #creepy-eye {
             width: 280px;  
             height: 280px;
@@ -104,7 +101,7 @@
             object-fit: contain;
         }
 
-        /* 🏁 「The END」の文字の見た目設定 */
+        /* 🏁 「The END」の文字 */
         #end-text {
             color: #555555;
             font-family: 'Courier New', Courier, monospace;
@@ -344,10 +341,17 @@
                 input.placeholder = "メッセージを入力..."
             }
             
+            // ⚙️ 【進行管理の修正】ループカウントとフェーズの移行を確実に整理しました
             if (phase === 6) {
                 loopCount++;
                 if (loopCount >= 5) {
                     phase = 7; 
+                    loopCount = 1; // 病みトーク最初のカウントにセット
+                }
+            } else if (phase === 7) {
+                loopCount++;
+                if (loopCount >= 5) {
+                    phase = 8; 
                 }
             } else {
                 phase++;
@@ -361,7 +365,7 @@
 
             let waitTime = 1200;
             if (phase === 6) {
-                waitTime = 1800 + (loopCount * 300);
+                waitTime = 1400 + (loopCount * 200);
             }
 
             setTimeout(() => {
@@ -385,13 +389,16 @@
                 img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
+                // アイコンの変形エフェクト判定を正確に調整
                 if (phase < 6) {
                     img.classList.add('normal'); 
                 } else if (phase === 6) {
+                    img.classList.add('normal');
+                } else if (phase === 7) {
                     if (loopCount <= 2) img.classList.add('normal');
-                    else if (loopCount <= 4) img.classList.add('serious'); 
+                    else img.classList.add('serious'); // 真顔（白黒化）
                 } else {
-                    img.classList.add('horror'); 
+                    img.classList.add('horror'); // 赤黒化
                 }
                 
                 avatarDiv.appendChild(img);
@@ -430,12 +437,13 @@
             } else if (phase === 2) {
                 appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
                 appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
                 appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
             } else if (phase === 6) {
+                // ⚠️ ここが5回繰り返されます（5回何か入力して送信すると、自動で phase 7 に突入します）
                 appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
             } 
             else if (phase === 7) {
