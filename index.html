@@ -386,9 +386,24 @@
             const container = document.getElementById('chat-container');
             container.scrollTop = container.scrollHeight;
 
+           // ⏳ 通常の返信速度（1.2秒）
             let waitTime = 1200;
+            
+            // 🤖 【演出強化】フェーズ6（ループセリフ）のタイムラグを不均等にする
             if (phase === 6) {
-                waitTime = 1400 + (loopCount * 200);
+                if (loopCount === 1) {
+                    // 1回目：「絶対に閉じたり消したりしないでね？」の最初の返信
+                    waitTime = 1200; // 普通の速度
+                } else if (loopCount === 2) {
+                    // 2回目：ちょっと遅れて「ん？」と思わせる
+                    waitTime = 2000; // 2秒のタメ
+                } else if (loopCount === 3) {
+                    // 3回目：本気でバグったか不安になる長さ
+                    waitTime = 5000; // 5秒のタメ
+                } else {
+                    // 4回目以降（フェーズ7に移行する前）
+                    waitTime = 1500; 
+                }
             }
 
             setTimeout(() => {
