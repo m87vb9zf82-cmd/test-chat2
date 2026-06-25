@@ -532,9 +532,6 @@
            else if (phase === 9) {
                 let count = 0;
                 const glitchInterval = setInterval(() => {
-                
-                let count = 0;
-                const glitchInterval = setInterval(() => {
                     const glitchMessages = [
                         "アナタヲサガシテタアナタヲサガシテタアナタヲサガシテタ",
                         `キエナイデ${userName}キエナイデキエナイデキエナイデ`,
@@ -549,7 +546,7 @@
                             startHorrorSequence(); 
                         }, 3000); 
                     }
-                }, 100);
+                }, 100); // 👈 ここが正しく閉じられていませんでした
             }
         }
 
