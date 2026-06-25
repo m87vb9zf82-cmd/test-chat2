@@ -300,13 +300,16 @@
                 // 📱 【iPhone対策の肝】
                 // ユーザーが送信ボタンを押した瞬間に、一瞬だけ再生して即一時停止。
                 // これでiOSの再生制限をバグなしで確実に解除（解放）します。
+               // 📱 再生を仕掛ける直前に、確実に音量を 0 (完全無音) に固定します
+                horrorAudio.volume = 0; 
+                
                 horrorAudio.play().then(() => {
                     horrorAudio.pause();
                     horrorAudio.currentTime = 0;
                 }).catch(() => {
                     // ファイル読み込み中などのエラーはスルー
                 });
-
+                
             } catch (e) {}
         }
 
