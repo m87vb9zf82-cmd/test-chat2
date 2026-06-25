@@ -278,7 +278,7 @@
     </form>
 
     <script>
-       let phase = 0;
+     let phase = 0;
         let loopCount = 0; 
         let userName = "あなた"; 
         let audioCtx = null;
@@ -298,14 +298,13 @@
                 }
 
                 // 📱 【iPhone対策の肝】
-                // ユーザーが送信ボタンを押した（画面を触った）瞬間に、
-                // 音声を一瞬だけ「無音（または一瞬だけ再生して即一時停止）」にして、iOSの再生制限を解除（解放）します。
-                // これをやると、後から自動でplay()してもiPhoneで鳴るようになります。
+                // ユーザーが送信ボタンを押した瞬間に、一瞬だけ再生して即一時停止。
+                // これでiOSの再生制限をバグなしで確実に解除（解放）します。
                 horrorAudio.play().then(() => {
                     horrorAudio.pause();
                     horrorAudio.currentTime = 0;
                 }).catch(() => {
-                    // 最初の数回はまだファイル読み込み中などでエラーが出てもスルーして大丈夫です
+                    // ファイル読み込み中などのエラーはスルー
                 });
 
             } catch (e) {}
@@ -426,7 +425,6 @@
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
             if (isGlitch) msgDiv.classList.add('glitch-text');
-            img.src = "ai_scary.png";
             msgDiv.innerText = text;
             row.appendChild(msgDiv);
             
@@ -456,7 +454,7 @@
             } else if (phase === 2) {
                 appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
                 appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
@@ -551,7 +549,7 @@
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 
-                // 👁️ 解放済みの音声をここで再生！これならiPhoneでも確実に鳴ります
+                // 👁️ ここでホラー効果音が鳴り響きます
                 horrorAudio.play().catch(e => {
                     console.log("再生エラー:", e);
                 });
