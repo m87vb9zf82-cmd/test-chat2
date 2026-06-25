@@ -448,13 +448,14 @@
             document.body.style.backgroundColor = bgColor;
             document.getElementById('main-header').style.backgroundColor = headerColor;
             
-            // ✨ 【新規：背景に薄く不気味ちゃんを映し出す処理】
+            // ✨ 【修正：背景のブルーを維持したまま画像を薄く重ねる】
             const chatContainer = document.getElementById('chat-container');
             if (isScaryBG) {
-                // background-imageに不気味ちゃんを指定し、
-                // rgbaで「黒い半透明の膜」を上に重ねることで、限界まで薄く（見えるか見えないか）調整します
-                chatContainer.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('ai_scary.png')`;
-                // ↑ もし背景が暗くなって見えづらい場合は、0.92 の数字を 0.88 などに下げると少し濃くなります
+                // 白ではなく、指定された背景色（bgColor）の末尾に「E6」（不透明度90%の意味）を付け足した膜を重ねます。
+                // これにより、元の綺麗なブルーのまま、奥からうっすら顔が浮かび上がります！
+                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}E6, ${bgColor}E6), url('ai_scary.png')`;
+                
+                // 💡 もし「もっと顔をハッキリ見せたい！」という場合は、E6 を D9（85%）や C4（77%）に下げてみてください。
             } else {
                 chatContainer.style.backgroundImage = 'none'; // 通常時は背景なし
             }
@@ -506,11 +507,11 @@
                 document.getElementById('send-btn').disabled = true;
 
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
-                // 背景に不気味ちゃんをうっすら配置
-                document.getElementById('chat-container').style.backgroundImage = `linear-gradient(rgba(48,0,0,0.88), rgba(48,0,0,0.88)), url('ai_scary.png')`;
-                
-                changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
+                
+                // 🎨 【修正】ここも changeAppColors の末尾に「, true」をつけて呼び出すだけに統一します
+                // これで赤黒い背景色（#300000）ベースの膜が自動で綺麗に重なります
+                changeAppColors('#300000', '#100000', '#220000', '#ff0033', true); 
                 
                 // 1回目のセリフ（グリッチ文字）を出力
                 appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai', true);
@@ -524,9 +525,9 @@
                     phase = 9;
                     setTimeout(() => {
                         handleAIResponse();
-                    }, 2000);
+                    }, 5000);
 
-                }, 2000); // 👈 ここが「2秒おく」の指定（2000ミリ秒）
+                }, 5000); 
             }
             
            else if (phase === 9) {
