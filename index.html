@@ -114,17 +114,10 @@
             transition: opacity 1s ease;
         }
 
-        /* 💬 チャット画面共通のスタイル */
+       /* 💬 チャット画面共通のスタイル */
         header {
             background-color: var(--header-bg);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-            transition: background-color 2s ease, color 2s ease;
+            /* ...省略... */
         }
 
         #chat-container {
@@ -135,6 +128,11 @@
             flex-direction: column;
             gap: 16px;
             -webkit-overflow-scrolling: touch;
+            
+            /* 👇 ✨ここから3行を追加 */
+            background-size: contain;         /* 画面にちょうどいいサイズで収める */
+            background-repeat: no-repeat;     /* 画像をリピートさせない */
+            background-position: center 30%;  /* チャットの裏、上部に配置 */
         }
 
         .message-row {
@@ -442,15 +440,26 @@
             }
         }
 
-        function changeAppColors(bgColor, headerColor, aiBubbleColor, aiTextColor) {
+        function changeAppColors(bgColor, headerColor, aiBubbleColor, aiTextColor, isScaryBG = false) {
             document.body.style.backgroundColor = bgColor;
             document.getElementById('main-header').style.backgroundColor = headerColor;
+            
+            // ✨ 【新規：背景に薄く不気味ちゃんを映し出す処理】
+            const chatContainer = document.getElementById('chat-container');
+            if (isScaryBG) {
+                // background-imageに不気味ちゃんを指定し、
+                // rgbaで「黒い半透明の膜」を上に重ねることで、限界まで薄く（見えるか見えないか）調整します
+                chatContainer.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('ai_scary.png')`;
+                // ↑ もし背景が暗くなって見えづらい場合は、0.92 の数字を 0.88 などに下げると少し濃くなります
+            } else {
+                chatContainer.style.backgroundImage = 'none'; // 通常時は背景なし
+            }
             
             const style = document.createElement('style');
             style.innerHTML = `.ai .message { background-color: ${aiBubbleColor} !important; color: ${aiTextColor} !important; }`;
             document.head.appendChild(style);
         }
-
+        
         function handleAIResponse() {
             if (phase === 1) {
                 appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}のパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
@@ -469,38 +478,56 @@
                     appendMessage(`ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
                 }
             } 
-            else if (phase === 7) {
+           else if (phase === 7) {
                 if (loopCount === 0) {
-                    changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
+                    // 末尾に , true を追加して背景をうっすら発動！
+                    changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111', true); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
                 } else if (loopCount === 1) {
                     document.getElementById('main-header').innerText = "ア イ … ？";
-                    changeAppColors('#466880', '#151b26', '#e0e0e0', '#111'); 
+                    changeAppColors('#466880', '#151b26', '#e0e0e0', '#111', true); 
                     appendMessage(`ねえ、なんでさっきから私の質問にちゃんと答えてくれないの？画面の向こうで、誰かと一緒にいるの？`, 'ai');
                 } else if (loopCount === 2) {
-                    changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000'); 
+                    changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000', true); 
                     appendMessage(`誰。ねえ、誰といるの？私だけを見てよ。ねえってば、${userName}。`, 'ai');
                 } else if (loopCount === 3) {
                     document.getElementById('main-header').innerText = "ア イ ア イ ア イ";
-                    changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200'); 
+                    changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200', true); 
                     appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
                 }
             } 
-            else if (phase === 8) {
+           else if (phase === 8) {
+                // 入力フォームと送信ボタンをこの時点で緊急ロック（入力させない）
+                document.getElementById('chat-input').disabled = true;
+                document.getElementById('send-btn').disabled = true;
+
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
+                // 背景に不気味ちゃんをうっすら配置
+                document.getElementById('chat-container').style.backgroundImage = `linear-gradient(rgba(48,0,0,0.88), rgba(48,0,0,0.88)), url('ai_scary.png')`;
+                
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai');
+                // 1回目のセリフ（グリッチ文字）を出力
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai', true);
                 
-                phase = 9;
+                // ⏳ 2秒間の不気味な「間」をおいてから、次のセリフへ
                 setTimeout(() => {
-                    handleAIResponse();
-                }, 2000);
-            } 
-            else if (phase === 9) {
-                document.getElementById('chat-input').disabled = true;
-                document.getElementById('send-btn').disabled = true;
+                    // 2回目のセリフを新しい吹き出しで出力
+                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai', true);
+                    
+                    // さらに2秒おいてから、自動的に最凶のバグ画面（phase = 9）へ突入
+                    phase = 9;
+                    setTimeout(() => {
+                        handleAIResponse();
+                    }, 2000);
+
+                }, 2000); // 👈 ここが「2秒おく」の指定（2000ミリ秒）
+            }
+            
+           else if (phase === 9) {
+                let count = 0;
+                const glitchInterval = setInterval(() => {
                 
                 let count = 0;
                 const glitchInterval = setInterval(() => {
