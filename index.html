@@ -64,22 +64,19 @@
             overflow: hidden;
         }
 
-        /* 🩸 【強制ホラー加工】フォントに関わらず文字の形を精神的に病んだ形状に歪ませる */
+        /* 🩸 【強制ホラー加工】 */
         #vertical-text {
             color: #c00000; 
             font-family: 'New Tegomin', 'Hiragino Mincho ProN', 'MS Mincho', serif; 
             font-weight: 900;
-            font-size: 5rem; /* 迫力を出すため少し大きく */
+            font-size: 5rem;
             line-height: 1.3;  
             text-align: center;
             display: block;
-            /* 強い血の滲みエフェクト */
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.9), 0 0 20px rgba(150, 0, 0, 0.8), 3px 3px 2px #000000;
             letter-spacing: 4px;
-            
-            /* 🔥 縦に細長く引き伸ばし、さらに左右をすぼめることで「お札」や「呪いの文字」のような不安定さを強制演出 */
             transform: scale(0.75, 1.4) skewX(-6deg);
-            filter: contrast(150%) blur(0.3px); /* 輪郭を少し不気味にジャギらせる */
+            filter: contrast(150%) blur(0.3px);
         }
 
         .char-fade {
@@ -114,10 +111,26 @@
             transition: opacity 1s ease;
         }
 
-       /* 💬 チャット画面共通のスタイル */
+        /* ✨ 「Thanks for Playing！」の文字を追加 */
+        #thanks-text {
+            color: #333333;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            margin-top: 15px;
+            display: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        /* 💬 チャット画面共通のスタイル */
         header {
             background-color: var(--header-bg);
-            /* ...省略... */
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
         }
 
         #chat-container {
@@ -128,11 +141,9 @@
             flex-direction: column;
             gap: 16px;
             -webkit-overflow-scrolling: touch;
-            
-            /* 👇 ✨ここから3行を追加 */
-            background-size: contain;         /* 画面にちょうどいいサイズで収める */
-            background-repeat: no-repeat;     /* 画像をリピートさせない */
-            background-position: center 30%;  /* チャットの裏、上部に配置 */
+            background-size: contain;         
+            background-repeat: no-repeat;     
+            background-position: center 30%;  
         }
 
         .message-row {
@@ -158,20 +169,16 @@
             overflow: hidden;
         }
         
-       .avatar-img {
+        .avatar-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: filter 2s ease; 
-            
-            /* 👇 ✨ここから2行を追加 */
-            transform: scale(1.4);         /* 画像を1.4倍に拡大（大きくするほど顔が近づきます） */
-            transform-origin: center 35%;  /* 拡大の中心点を「横は真ん中、縦は上から35%（顔の位置）」に設定 */
+            transform: scale(1.4);         
+            transform-origin: center 35%;  
         }
 
         .avatar-img.normal { filter: none; } 
-        .avatar-img.serious { filter: grayscale(100%) contrast(120%); } 
-        .avatar-img.horror { filter: brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(300%); } 
 
         .message {
             max-width: 70%;
@@ -259,6 +266,7 @@
             <img src="eye.png" alt="恐怖の目">
         </div>
         <div id="end-text">- The END -</div>
+        <div id="thanks-text">Thanks for Playing！</div>
     </div>
 
     <header id="main-header">アイ</header>
@@ -280,13 +288,13 @@
     </form>
 
     <script>
-     let phase = 0;
+        let phase = 0;
         let loopCount = 0; 
         let userName = "あなた"; 
         let audioCtx = null;
 
-        // 👁️ 【iPhone対策】あらかじめグローバルにオーディオオブジェクトを作っておく
-        const horrorAudio = new Audio('horror_sound.mp3');
+        // 👁️ GitHub上の実際のファイル名「horror_sound.mp3.mp3」に合わせました
+        const horrorAudio = new Audio('horror_sound.mp3.mp3');
         horrorAudio.volume = 0;
 
         function initAudio() {
@@ -299,19 +307,11 @@
                     audioCtx.resume();
                 }
 
-                // 📱 【iPhone対策の肝】
-                // ユーザーが送信ボタンを押した瞬間に、一瞬だけ再生して即一時停止。
-                // これでiOSの再生制限をバグなしで確実に解除（解放）します。
-               // 📱 再生を仕掛ける直前に、確実に音量を 0 (完全無音) に固定します
                 horrorAudio.volume = 0; 
-                
                 horrorAudio.play().then(() => {
                     horrorAudio.pause();
                     horrorAudio.currentTime = 0;
-                }).catch(() => {
-                    // ファイル読み込み中などのエラーはスルー
-                });
-                
+                }).catch(() => {});
             } catch (e) {}
         }
 
@@ -349,7 +349,7 @@
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            initAudio(); // 🔥 ここでiPhoneの制限を解除しにいきます
+            initAudio();
 
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
@@ -365,7 +365,7 @@
             
             if (phase === 6) {
                 loopCount++;
-                if (loopCount >= 4) { 
+                if (loopCount >= 5) { 
                     phase = 7;
                     loopCount = 0; 
                 }
@@ -409,19 +409,14 @@
                 const img = document.createElement('img');
                 img.classList.add('avatar-img');
                 
-                if (phase === 6 && loopCount === 3) {
+                if (phase === 6 && loopCount >= 3) {
                     img.src = "ai_scary.png";
-                    img.classList.add('normal'); 
-                } else if (phase === 6 && loopCount > 3) {
-                    img.src = "ai_scary.png";
-                    img.classList.add('normal');
                 } else if (phase >= 7) {
                     img.src = "ai_scary.png";
-                    img.classList.add('normal');
                 } else {
                     img.src = "ai.png";
-                    img.classList.add('normal');
                 }
+                img.classList.add('normal');
                 
                 avatarDiv.appendChild(img);
                 row.appendChild(avatarDiv);
@@ -448,16 +443,12 @@
             document.body.style.backgroundColor = bgColor;
             document.getElementById('main-header').style.backgroundColor = headerColor;
             
-            // ✨ 【修正：背景のブルーを維持したまま画像を薄く重ねる】
             const chatContainer = document.getElementById('chat-container');
             if (isScaryBG) {
-                // 白ではなく、指定された背景色（bgColor）の末尾に「E6」（不透明度90%の意味）を付け足した膜を重ねます。
-                // これにより、元の綺麗なブルーのまま、奥からうっすら顔が浮かび上がります！
+                // ✨ 【修正】E6から「F6」の中間に変更して極上の薄さに！
                 chatContainer.style.backgroundImage = `linear-gradient(${bgColor}F6, ${bgColor}F6), url('ai_scary.png')`;
-                
-                // 💡 もし「もっと顔をハッキリ見せたい！」という場合は、E6 を D9（85%）や C4（77%）に下げてみてください。
             } else {
-                chatContainer.style.backgroundImage = 'none'; // 通常時は背景なし
+                chatContainer.style.backgroundImage = 'none';
             }
             
             const style = document.createElement('style');
@@ -483,9 +474,8 @@
                     appendMessage(`ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
                 }
             } 
-           else if (phase === 7) {
+            else if (phase === 7) {
                 if (loopCount === 0) {
-                    // 末尾に , true を追加して背景をうっすら発動！
                     changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111', true); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
                 } else if (loopCount === 1) {
@@ -501,36 +491,29 @@
                     appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
                 }
             } 
-           else if (phase === 8) {
-                // 入力フォームと送信ボタンをこの時点で緊急ロック（入力させない）
+            else if (phase === 8) {
                 document.getElementById('chat-input').disabled = true;
                 document.getElementById('send-btn').disabled = true;
 
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
                 document.getElementById('main-header').style.color = '#ff0033';
                 
-                // 🎨 【修正】ここも changeAppColors の末尾に「, true」をつけて呼び出すだけに統一します
-                // これで赤黒い背景色（#300000）ベースの膜が自動で綺麗に重なります
+                // ✨ 【修正】フェーズ8もF6ブレンドに統一
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033', true); 
                 
-                // 1回目のセリフ（グリッチ文字）を出力
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai');
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai', true);
                 
-                // ⏳ 2秒間の不気味な「間」をおいてから、次のセリフへ
                 setTimeout(() => {
-                    // 2回目のセリフを新しい吹き出しで出力
-                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai');
+                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai', true);
                     
-                    // さらに2秒おいてから、自動的に最凶のバグ画面（phase = 9）へ突入
                     phase = 9;
                     setTimeout(() => {
                         handleAIResponse();
                     }, 5000);
-
                 }, 5000); 
             }
-            
-           else if (phase === 9) {
+            else if (phase === 9) {
+                // ✨ 【修正】完全にぶっ壊れていた{}の文法エラーを綺麗に一掃しました！
                 let count = 0;
                 const glitchInterval = setInterval(() => {
                     const glitchMessages = [
@@ -547,7 +530,7 @@
                             startHorrorSequence(); 
                         }, 3000); 
                     }
-                }, 100); // 👈 ここが正しく閉じられていませんでした
+                }, 100);
             }
         }
 
@@ -557,11 +540,9 @@
             stage.style.pointerEvents = 'all';
 
             const chars = document.querySelectorAll('.char-fade');
-            
             chars.forEach((char, index) => {
                 setTimeout(() => {
                     char.style.opacity = '1';
-                    
                     if (index === chars.length - 1) {
                         setTimeout(() => {
                             triggerVibrationAndEye();
@@ -581,8 +562,7 @@
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 
-               // 👁️ ここでホラー効果音が鳴り響きます
-                horrorAudio.volume = 1.0; // 🔥 本番なのでここで音量をMAXに引き上げる！
+                horrorAudio.volume = 1.0; 
                 horrorAudio.play().catch(e => {
                     console.log("再生エラー:", e);
                 });
@@ -593,30 +573,19 @@
                     eye.style.opacity = '0';
                     setTimeout(() => { eye.style.display = 'none'; }, 1000);
 
+                    // 🏁 「- The END -」の表示
                     const endText = document.getElementById('end-text');
                     endText.style.display = 'block';
                     setTimeout(() => { endText.style.opacity = '1'; }, 50);
 
-                    // 👇 ✨ここから「Thanks for Playing！」を表示する処理を追加
+                    // 🎉 【スクショの英語命令を統合】Thanks for Playing！の遅延フェードイン
                     const thanksText = document.getElementById('thanks-text');
-                    
-                    // さりげなく見せるために、文字を小さめ・薄めのグレーにするスタイルを適用
-                    thanksText.style.color = '#333333';
-                    thanksText.style.fontFamily = 'Courier New', Courier, monospace;
-                    thanksText.style.fontSize = '1rem';
-                    thanksText.style.marginTop = '15px';
-                    thanksText.style.opacity = '0';
-                    thanksText.style.transition = 'opacity 1.5s ease'; // 1.5秒かけてじわ〜っと出す
-                    
-                    // 「The END」が出てから、さらに1秒おいてからスッと表示させる
                     setTimeout(() => {
                         thanksText.style.display = 'block';
                         setTimeout(() => { thanksText.style.opacity = '1'; }, 50);
-                    }, 1000);
-                    // 👆 ✨ここまで追加
+                    }, 1500); // The ENDが出てから1.5秒後
 
-                }, 4000);
-
+                }, 4000); 
             }, 2000);
         }
     </script>
