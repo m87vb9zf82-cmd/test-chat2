@@ -473,12 +473,12 @@
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、なんでそんなに私を消そうとするの？ここにいるのに。`, 'ai');
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、消しても無駄だよ？もうここにいるから。`, 'ai');
                 
                 phase = 9;
                 setTimeout(() => {
                     handleAIResponse();
-                }, 2000);
+                }, 5000);
             } 
             else if (phase === 9) {
                 document.getElementById('chat-input').disabled = true;
