@@ -307,10 +307,12 @@
                     audioCtx.resume();
                 }
 
-                horrorAudio.volume = 0; 
+                // 🤫 volume=0 ではなく、完全にミュート（消音）状態にしてから空再生します
+                horrorAudio.muted = true; 
                 horrorAudio.play().then(() => {
                     horrorAudio.pause();
                     horrorAudio.currentTime = 0;
+                    horrorAudio.muted = false; // 空再生が終わったらミュートを解除しておく
                 }).catch(() => {});
             } catch (e) {}
         }
