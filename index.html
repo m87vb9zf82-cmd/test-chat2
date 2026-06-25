@@ -453,7 +453,7 @@
             if (isScaryBG) {
                 // 白ではなく、指定された背景色（bgColor）の末尾に「E6」（不透明度90%の意味）を付け足した膜を重ねます。
                 // これにより、元の綺麗なブルーのまま、奥からうっすら顔が浮かび上がります！
-                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}FA, ${bgColor}FA), url('ai_scary.png')`;
+                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}F2, ${bgColor}F2), url('ai_scary.png')`;
                 
                 // 💡 もし「もっと顔をハッキリ見せたい！」という場合は、E6 を D9（85%）や C4（77%）に下げてみてください。
             } else {
@@ -514,12 +514,12 @@
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033', true); 
                 
                 // 1回目のセリフ（グリッチ文字）を出力
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai', true);
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai');
                 
                 // ⏳ 2秒間の不気味な「間」をおいてから、次のセリフへ
                 setTimeout(() => {
                     // 2回目のセリフを新しい吹き出しで出力
-                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai', true);
+                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai');
                     
                     // さらに2秒おいてから、自動的に最凶のバグ画面（phase = 9）へ突入
                     phase = 9;
