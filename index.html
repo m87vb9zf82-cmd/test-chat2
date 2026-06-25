@@ -278,10 +278,14 @@
     </form>
 
     <script>
-        let phase = 0;
+       let phase = 0;
         let loopCount = 0; 
         let userName = "あなた"; 
         let audioCtx = null;
+
+        // 👁️ 【iPhone対策】あらかじめグローバルにオーディオオブジェクトを作っておく
+        const horrorAudio = new Audio('horror_sound.mp3');
+        horrorAudio.volume = 1.0;
 
         function initAudio() {
             try {
@@ -292,6 +296,18 @@
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
+
+                // 📱 【iPhone対策の肝】
+                // ユーザーが送信ボタンを押した（画面を触った）瞬間に、
+                // 音声を一瞬だけ「無音（または一瞬だけ再生して即一時停止）」にして、iOSの再生制限を解除（解放）します。
+                // これをやると、後から自動でplay()してもiPhoneで鳴るようになります。
+                horrorAudio.play().then(() => {
+                    horrorAudio.pause();
+                    horrorAudio.currentTime = 0;
+                }).catch(() => {
+                    // 最初の数回はまだファイル読み込み中などでエラーが出てもスルーして大丈夫です
+                });
+
             } catch (e) {}
         }
 
@@ -329,7 +345,7 @@
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            initAudio();
+            initAudio(); // 🔥 ここでiPhoneの制限を解除しにいきます
 
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
@@ -345,7 +361,7 @@
             
             if (phase === 6) {
                 loopCount++;
-                if (loopCount >= 4) {
+                if (loopCount >= 5) { 
                     phase = 7;
                     loopCount = 0; 
                 }
@@ -387,24 +403,18 @@
                 avatarDiv.classList.add('avatar-box');
                 
                 const img = document.createElement('img');
-                img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
-            // ✨ アイコン画像の切り替え処理（色変化エフェクトを完全オフ版）
                 if (phase === 6 && loopCount === 3) {
-                    // 「約束だよ？」の3回目で不気味ちゃん画像に切り替え（色はそのまま）
                     img.src = "ai_scary.png";
                     img.classList.add('normal'); 
                 } else if (phase === 6 && loopCount > 3) {
-                    // 次の送信を待つ間
                     img.src = "ai_scary.png";
                     img.classList.add('normal');
                 } else if (phase >= 7) {
-                    // フェーズ7以降も、エフェクトをかけずに不気味ちゃん画像をそのまま表示！
                     img.src = "ai_scary.png";
                     img.classList.add('normal');
                 } else {
-                    // 通常時（最初の可愛いアイちゃん）
                     img.src = "ai.png";
                     img.classList.add('normal');
                 }
@@ -416,6 +426,7 @@
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
             if (isGlitch) msgDiv.classList.add('glitch-text');
+            img.src = "ai_scary.png";
             msgDiv.innerText = text;
             row.appendChild(msgDiv);
             
@@ -445,21 +456,17 @@
             } else if (phase === 2) {
                 appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうなんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
                 appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
                 appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
-            }else if (phase === 6) {
-                // 最初の1回目（loopCountが0のとき）だけ、普通の相槌を打つ
+            } else if (phase === 6) {
                 if (loopCount === 0) {
                     appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。`, 'ai');
-                } 
-                // 2回目以降（loopCountが1, 2, 3のとき）は、執着セリフを3回繰り返す
-                else {
+                } else {
                     appendMessage(`ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
                 }
-        
             } 
             else if (phase === 7) {
                 if (loopCount === 0) {
@@ -483,12 +490,12 @@
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
                 
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、消しても無駄だよ？もうここにいるから。`, 'ai');
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}、私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai');
                 
                 phase = 9;
                 setTimeout(() => {
                     handleAIResponse();
-                }, 5000);
+                }, 2000);
             } 
             else if (phase === 9) {
                 document.getElementById('chat-input').disabled = true;
@@ -514,7 +521,7 @@
             }
         }
 
-       function startHorrorSequence() {
+        function startHorrorSequence() {
             const stage = document.getElementById('horror-stage');
             stage.style.opacity = '1';
             stage.style.pointerEvents = 'all';
@@ -524,7 +531,6 @@
             chars.forEach((char, index) => {
                 setTimeout(() => {
                     char.style.opacity = '1';
-                    // ✨ 音を鳴らす処理を消去して完全無音に！
                     
                     if (index === chars.length - 1) {
                         setTimeout(() => {
@@ -534,7 +540,8 @@
                 }, index * 1000);
             });
         }
-       function triggerVibrationAndEye() {
+
+        function triggerVibrationAndEye() {
             if ('vibrate' in navigator) {
                 navigator.vibrate(2000);
             }
@@ -544,12 +551,9 @@
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 
-                // 👁️ 【新規：ホラー効果音の再生】
-                // 目の画像が出る瞬間に、アップロードしたmp3を爆音で鳴らします
-                const horrorAudio = new Audio('horror_sound.mp3');
-                horrorAudio.volume = 1.0; // 音量を最大（0.0 〜 1.0）に設定
+                // 👁️ 解放済みの音声をここで再生！これならiPhoneでも確実に鳴ります
                 horrorAudio.play().catch(e => {
-                    console.log("オーディオの再生に失敗しました（ブラウザの制限など）:", e);
+                    console.log("再生エラー:", e);
                 });
 
                 setTimeout(() => { eye.style.opacity = '1'; }, 50);
