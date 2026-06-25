@@ -453,7 +453,7 @@
             if (isScaryBG) {
                 // 白ではなく、指定された背景色（bgColor）の末尾に「E6」（不透明度90%の意味）を付け足した膜を重ねます。
                 // これにより、元の綺麗なブルーのまま、奥からうっすら顔が浮かび上がります！
-                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}F2, ${bgColor}F2), url('ai_scary.png')`;
+                chatContainer.style.backgroundImage = `linear-gradient(${bgColor}F6, ${bgColor}F6), url('ai_scary.png')`;
                 
                 // 💡 もし「もっと顔をハッキリ見せたい！」という場合は、E6 を D9（85%）や C4（77%）に下げてみてください。
             } else {
@@ -596,7 +596,26 @@
                     const endText = document.getElementById('end-text');
                     endText.style.display = 'block';
                     setTimeout(() => { endText.style.opacity = '1'; }, 50);
-                }, 4000); 
+
+                    // 👇 ✨ここから「Thanks for Playing！」を表示する処理を追加
+                    const thanksText = document.getElementById('thanks-text');
+                    
+                    // さりげなく見せるために、文字を小さめ・薄めのグレーにするスタイルを適用
+                    thanksText.style.color = '#333333';
+                    thanksText.style.fontFamily = 'Courier New', Courier, monospace;
+                    thanksText.style.fontSize = '1rem';
+                    thanksText.style.marginTop = '15px';
+                    thanksText.style.opacity = '0';
+                    thanksText.style.transition = 'opacity 1.5s ease'; // 1.5秒かけてじわ〜っと出す
+                    
+                    // 「The END」が出てから、さらに1秒おいてからスッと表示させる
+                    setTimeout(() => {
+                        thanksText.style.display = 'block';
+                        setTimeout(() => { thanksText.style.opacity = '1'; }, 50);
+                    }, 1000);
+                    // 👆 ✨ここまで追加
+
+                }, 4000);
 
             }, 2000);
         }
