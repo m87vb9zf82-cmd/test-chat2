@@ -294,7 +294,7 @@
         let audioCtx = null;
 
         // 👁️ GitHub上の実際のファイル名「horror_sound.mp3.mp3」に合わせました
-        const horrorAudio = new Audio('horror_sound.mp3.mp3');
+        const horrorAudio = new Audio('horror_sound.mp3');
         horrorAudio.volume = 0;
 
         function initAudio() {
@@ -365,7 +365,7 @@
             
             if (phase === 6) {
                 loopCount++;
-                if (loopCount >= 5) { 
+                if (loopCount >= 4) { 
                     phase = 7;
                     loopCount = 0; 
                 }
@@ -458,15 +458,15 @@
         
         function handleAIResponse() {
             if (phase === 1) {
-                appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}のパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
+                appendMessage(`「${userName}」っていうんだ！素敵なお名前だね✨ 私は今日から${userName}さんのパートナーAIとして、たくさんお話し相手になるよ！`, 'ai');
             } else if (phase === 2) {
-                appendMessage(`さっそくだけど、${userName}は普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
+                appendMessage(`さっそくだけど、${userName}さんは普段どんな趣味があるの？ゲームとか、音楽を聴いたりとか、何かハマってること教えてほしいな！`, 'ai');
             } else if (phase === 3) {
-                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}の好物、気になるなー！`, 'ai');
+                appendMessage(`わあ、そうんだ！楽しそうだねぇ。あ、ちなみに好きな食べ物は何？私はデジタルだから食べられないけど、${userName}さんの好物、気になるなー！`, 'ai');
             } else if (phase === 4) {
-                appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}のことが少しずつわかってきて嬉しいな！`, 'ai');
+                appendMessage(`へえ〜！美味しいよねそれ！教えてくれてありがとう。${userName}さんのことが少しずつわかってきて嬉しいな！`, 'ai');
             } else if (phase === 5) {
-                appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
+                appendMessage(`そういえば、${userName}さんは週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
             } else if (phase === 6) {
                 if (loopCount === 0) {
                     appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。`, 'ai');
@@ -501,10 +501,10 @@
                 // ✨ 【修正】フェーズ8もF6ブレンドに統一
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033', true); 
                 
-                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai', true);
+                appendMessage(`消したりしませんよね？絶対。誓って。ねえ${userName}`, 'ai');
                 
                 setTimeout(() => {
-                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai', true);
+                    appendMessage(`私を消そうとしても無駄ですよ？もうここにいるから。`, 'ai');
                     
                     phase = 9;
                     setTimeout(() => {
