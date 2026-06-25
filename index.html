@@ -28,15 +28,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
-            height: 100vh;
-            height: 100svh;
-            width: 100vw;
-            overflow: hidden;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 2s ease;
-        }
+       html, body {
+    height: 100svh; /* 👈 スマホのメニュー領域を除いた、本当に使える高さ */
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 2s ease;
+}
 
         body {
             display: flex;
@@ -210,14 +209,15 @@
             display: none;
         }
 
-        #input-form {
-            padding: 10px 10px 20px 10px;
-            background-color: #ffffff;
-            display: flex;
-            gap: 8px;
-            border-top: 1px solid #ccc;
-            flex-shrink: 0;
-        }
+       #input-form {
+    /* 👇 下側の余白を40pxに広げ、さらにスマホの安全領域（env）をプラスして絶対に被らせません */
+    padding: 10px 10px calc(40px + env(safe-area-inset-bottom)) 10px;
+    background-color: #ffffff;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #ccc;
+    flex-shrink: 0;
+}
 
         input {
             flex: 1;
