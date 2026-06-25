@@ -285,7 +285,7 @@
 
         // 👁️ 【iPhone対策】あらかじめグローバルにオーディオオブジェクトを作っておく
         const horrorAudio = new Audio('horror_sound.mp3');
-        horrorAudio.volume = 1.0;
+        horrorAudio.volume = 0;
 
         function initAudio() {
             try {
@@ -549,11 +549,12 @@
                 const eye = document.getElementById('creepy-eye');
                 eye.style.display = 'block';
                 
-                // 👁️ ここでホラー効果音が鳴り響きます
+               // 👁️ ここでホラー効果音が鳴り響きます
+                horrorAudio.volume = 1.0; // 🔥 本番なのでここで音量をMAXに引き上げる！
                 horrorAudio.play().catch(e => {
                     console.log("再生エラー:", e);
                 });
-
+                
                 setTimeout(() => { eye.style.opacity = '1'; }, 50);
 
                 setTimeout(() => {
