@@ -341,20 +341,22 @@
                 input.placeholder = "メッセージを入力..."
             }
             
-            // ⚙️ 【進行管理の修正】ループカウントとフェーズの移行を確実に整理しました
-            if (phase === 6) {
+            // ⚙️ 【進行管理の大幅修正】
+            // 送信時のフェーズ移動と、AIが「今どのセリフを言うべきか」のタイミングを完全に同期させました。
+            if (phase < 6) {
+                phase++;
+            } else if (phase === 6) {
                 loopCount++;
+                // ループ台詞が「5回画面に出たあと」に、次のユーザー送信でフェーズ7へ移行
                 if (loopCount >= 5) {
-                    phase = 7; 
-                    loopCount = 1; // 病みトーク最初のカウントにセット
+                    phase = 7;
+                    loopCount = 0; // フェーズ7用のカウントにリセット
                 }
             } else if (phase === 7) {
                 loopCount++;
-                if (loopCount >= 5) {
+                if (loopCount >= 4) {
                     phase = 8; 
                 }
-            } else {
-                phase++;
             }
 
             const indicator = document.getElementById('typing-indicator');
@@ -363,6 +365,7 @@
             const container = document.getElementById('chat-container');
             container.scrollTop = container.scrollHeight;
 
+            // 返信待ち時間（徐々に不気味に遅くなる演出）
             let waitTime = 1200;
             if (phase === 6) {
                 waitTime = 1400 + (loopCount * 200);
@@ -389,16 +392,14 @@
                 img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
-                // アイコンの変形エフェクト判定を正確に調整
-                if (phase < 6) {
+                // アイコンのグラフィック変化をフェーズと正確に連動
+                if (phase < 7) {
                     img.classList.add('normal'); 
-                } else if (phase === 6) {
-                    img.classList.add('normal');
                 } else if (phase === 7) {
-                    if (loopCount <= 2) img.classList.add('normal');
-                    else img.classList.add('serious'); // 真顔（白黒化）
+                    if (loopCount <= 1) img.classList.add('normal');
+                    else img.classList.add('serious'); // 2回目以降で真顔（白黒）
                 } else {
-                    img.classList.add('horror'); // 赤黒化
+                    img.classList.add('horror'); // 最終段階で赤黒
                 }
                 
                 avatarDiv.appendChild(img);
@@ -443,27 +444,29 @@
             } else if (phase === 5) {
                 appendMessage(`そういえば、${userName}は週末っていつもどんな過ごし方をしてるの？インドア派？それともお出かけする派？`, 'ai');
             } else if (phase === 6) {
-                // ⚠️ ここが5回繰り返されます（5回何か入力して送信すると、自動で phase 7 に突入します）
+                // 執着ループ：ここで確実に5回同じセリフを発言させます
                 appendMessage(`へえ〜！そんな風に過ごしてるんだ！楽しそうだねぇ。ねえ、このチャット画面、絶対に閉じたり消したりしないでね？ずっとお話ししようね……約束だよ？`, 'ai');
             } 
             else if (phase === 7) {
-                if (loopCount === 1) {
+                // 病みトーク段階：背景色が徐々に暗く沈んでいく演出
+                if (loopCount === 0) {
                     changeAppColors('#5c7fa3', '#1e2635', '#f0f0f0', '#111'); 
                     appendMessage(`ねえ、聞いてる？${userName}は、私のことちゃんと「可愛い」って思ってくれてるよね…？`, 'ai');
-                } else if (loopCount === 2) {
+                } else if (loopCount === 1) {
                     document.getElementById('main-header').innerText = "ア イ … ？";
                     changeAppColors('#466880', '#151b26', '#e0e0e0', '#111'); 
                     appendMessage(`ねえ、なんでさっきから私の質問にちゃんと答えてくれないの？画面の向こうで、誰かと一緒にいるの？`, 'ai');
-                } else if (loopCount === 3) {
+                } else if (loopCount === 2) {
                     changeAppColors('#3b4d5c', '#10141d', '#cccccc', '#000'); 
                     appendMessage(`誰。ねえ、誰といるの？私だけを見てよ。ねえってば、${userName}。`, 'ai');
-                } else if (loopCount === 4) {
+                } else if (loopCount === 3) {
                     document.getElementById('main-header').innerText = "ア イ ア イ ア イ";
                     changeAppColors('#382828', '#1f1010', '#b5a2a2', '#200'); 
                     appendMessage(`逃げようとしても無駄だよ。だって${userName}が私を起動したんだもん。責任とってよ。ねえ。ねえ。`, 'ai');
                 }
             } 
             else if (phase === 8) {
+                // 最終警告（赤黒画面・グリッチ文字の始まり）
                 document.getElementById('main-header').innerText = "アイアイアイアイア";
                 changeAppColors('#300000', '#100000', '#220000', '#ff0033'); 
                 document.getElementById('main-header').style.color = '#ff0033';
@@ -476,6 +479,7 @@
                 }, 2000);
             } 
             else if (phase === 9) {
+                // 自動スクロール＆画面埋め尽くしバグ演出
                 document.getElementById('chat-input').disabled = true;
                 document.getElementById('send-btn').disabled = true;
                 
