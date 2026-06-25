@@ -345,7 +345,7 @@
             
             if (phase === 6) {
                 loopCount++;
-                if (loopCount >= 4) {
+                if (loopCount >= 5) {
                     phase = 7;
                     loopCount = 0; 
                 }
@@ -390,13 +390,23 @@
                 img.src = "ai.png";
                 img.classList.add('avatar-img');
                 
-                if (phase < 7) {
-                    img.classList.add('normal'); 
-                } else if (phase === 7) {
-                    if (loopCount <= 1) img.classList.add('normal');
-                    else img.classList.add('serious'); 
+             // ✨ アイコン画像の切り替え処理（約束3回目で不気味ちゃん化）
+                if (phase === 6 && loopCount === 3) {
+                    // 「約束だよ？」の3回目で画像が変わり、一気にホラー化
+                    img.src = "ai_scary.png";
+                    img.classList.add('serious'); 
+                } else if (phase === 6 && loopCount > 3) {
+                    // 次の送信を待つ間のアイコン（4回目カウント時など）
+                    img.src = "ai_scary.png";
+                    img.classList.add('serious');
+                } else if (phase >= 7) {
+                    // フェーズ7以降の最終段階（赤黒化エフェクト）
+                    img.src = "ai_scary.png";
+                    img.classList.add('horror');
                 } else {
-                    img.classList.add('horror'); 
+                    // 通常時（普通の相槌や、約束の1〜2回目まで）
+                    img.src = "ai.png";
+                    img.classList.add('normal');
                 }
                 
                 avatarDiv.appendChild(img);
